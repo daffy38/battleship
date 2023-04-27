@@ -1,0 +1,78 @@
+class Ship:
+    def __init__(self, points):
+        self.points = set(points)
+        self.hits = set()
+
+    def is_sunk(self):
+        return self.hits == self.points
+
+    def hit(self, point):
+        if point in self.points:
+            self.hits.add(point)
+            return True
+        return False
+
+
+class Board:
+    def __init__(self, ships):
+        self.ships = ships
+        self.width = 6
+        self.height = 6
+        self.grid = [[None for _ in range(self.width)] for _ in range(self.height)]
+        for ship in self.ships:
+            for point in ship.points:
+                x, y = point
+                self.grid[x][y] = ship
+
+    def __str__(self):
+        rows = []
+        rows.append("  | 1 | 2 | 3 | 4 | 5 | 6 |")
+        for y in range(self.height):
+            row = f"{y + 1} | "
+            for x in range(self.width):
+                ship = self.grid[x][y]
+                if ship is None:
+                    row += "О | "
+                elif ship.is_sunk():
+                    row += "X | "
+                else:
+                    row += "■ | "
+            rows.append(row)
+        return "\n".join(rows)
+
+import random
+
+class Game:
+    def __init__(self):
+        self.player_board = Board(self.generate_ships())
+        self.ai_board = Board(self.generate_ships())
+        self.player_hits = set()
+        self.ai_hits = set()
+        self.turn = 0
+        self.current_player = None
+
+    def generate_ships(self):
+        pass
+
+    def get_next_turn(self):
+        if self.current_player is None:
+            return self.player_board
+        elif self.current_player == "player":
+            return self.ai_board
+        else:
+            return self.player_board
+
+    def get_opponent_board(self):
+        if self.current_player == "player":
+            return self.ai_board
+        else:
+            return self.player_board
+
+    def get_opponent_hits(self):
+        if self.current_player == "player":
+            return self.ai_hits
+        else:
+            return self.player_hits
+
+    def is_game_over(self):
+        return all(ship.is_sunk() for ship in self.player_board.ships)
